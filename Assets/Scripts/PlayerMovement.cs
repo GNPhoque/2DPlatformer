@@ -4,20 +4,21 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
-    int jumps;
-    [SerializeField]
-    float speed;
-    [SerializeField]
-    float jumpForce;
-    [SerializeField]
-    Rigidbody2D rb;
-    [SerializeField]
-    bool isGrounded;
+	[SerializeField]
+	int jumps;
+	[SerializeField]
+	float speed;
+	[SerializeField]
+	float jumpForce;
+	[SerializeField]
+	float fallMultiplier;
+	[SerializeField]
+	Rigidbody2D rb;
 
-    int remainingJumps;
-	bool jumpInput;
-    Vector3 direction;
+	int remainingJumps;
+	bool pressingJump;
+	bool holdingJump;
+	Vector3 direction;
 
 	void Start()
 	{
@@ -25,36 +26,37 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	void Update()
-    {
+	{
 		if (Input.GetButtonDown("Jump"))
 		{
-			Debug.Log("Jump input down");
-			jumpInput = true;
+			pressingJump = true;
 		}
-        float dir = Input.GetAxisRaw("Horizontal");
-        direction = new Vector3(dir, 0f, 0f);
-    }
+		holdingJump = Input.GetButton("Jump");
+		direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
+	}
 
 	void FixedUpdate()
 	{
-		if (jumpInput)
+		if (pressingJump)
 		{
-			Debug.Log("Fixed update Jump ");
+			pressingJump = false;
 			if (remainingJumps > 0)
 			{
-				rb.AddForce(Vector2.up * jumpForce); 
-				Debug.Log("AddForce");
+				rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+				remainingJumps--;
 			}
-			jumpInput = false;
 		}
 		rb.velocity = new Vector2(direction.x * speed, rb.velocity.y);
+		if (rb.velocity.y < 0 || (rb.velocity.y > 0 && !holdingJump))
+		{
+			rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (collision.gameObject.tag == "Ground")
+		if (collision.gameObject.CompareTag("Ground"))
 		{
-            isGrounded = true;
 			remainingJumps = jumps;
 		}
 	}
