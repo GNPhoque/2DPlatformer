@@ -27,71 +27,77 @@ public class PlayerMovementStateMachine : MonoBehaviour
 
     private void OnStateEnter(PlayerState state)
     {
-        switch (state)
-        {
-            case PlayerState.GROUNDED:
-                OnEnterGrounded();
-                break;
+		switch (state)
+		{
+			case PlayerState.GROUNDED:
+				OnEnterGrounded();
+				break;
 
-            case PlayerState.JUMPING:
-                OnEnterJump();
-                break;
+			case PlayerState.JUMPING:
+				OnEnterJump();
+				break;
 
-            case PlayerState.FALLING:
-                OnEnterFall();
-                break;
+			case PlayerState.FALLING:
+				OnEnterFall();
+				break;
+			case PlayerState.WALLSLIDING:
+                OnEnterWallSlide();
+				break;
+			default:
+				Debug.LogError("OnStateEnter: Invalid state " + state.ToString());
+				break;
+		}
+	}
 
-            default:
-                Debug.LogError("OnStateEnter: Invalid state " + state.ToString());
-                break;
-        }
-    }
-
-    private void OnStateExit(PlayerState state)
+	private void OnStateExit(PlayerState state)
     {
-        switch (state)
-        {
-            case PlayerState.GROUNDED:
-                OnExitGrounded();
-                break;
+		switch (state)
+		{
+			case PlayerState.GROUNDED:
+				OnExitGrounded();
+				break;
 
-            case PlayerState.JUMPING:
-                OnExitJump();
-                break;
+			case PlayerState.JUMPING:
+				OnExitJump();
+				break;
 
-            case PlayerState.FALLING:
-                OnExitFall();
-                break;
+			case PlayerState.FALLING:
+				OnExitFall();
+				break;
+			case PlayerState.WALLSLIDING:
+                OnExitWallSlide();
+				break;
+			default:
+				Debug.LogError("OnStateExit: Invalid state " + state.ToString());
+				break;
+		}
+	}
 
-            default:
-                Debug.LogError("OnStateExit: Invalid state " + state.ToString());
-                break;
-        }
-    }
-
-    private void OnStateUpdate(PlayerState state)
+	private void OnStateUpdate(PlayerState state)
     {
-        switch (state)
-        {
-            case PlayerState.GROUNDED:
-                OnUpdateGrounded();
-                break;
+		switch (state)
+		{
+			case PlayerState.GROUNDED:
+				OnUpdateGrounded();
+				break;
 
-            case PlayerState.JUMPING:
-                OnUpdateJump();
-                break;
+			case PlayerState.JUMPING:
+				OnUpdateJump();
+				break;
 
-            case PlayerState.FALLING:
-                OnUpdateFall();
-                break;
+			case PlayerState.FALLING:
+				OnUpdateFall();
+				break;
+			case PlayerState.WALLSLIDING:
+                OnUpdateWallSlide();
+				break;
+			default:
+				Debug.LogError("OnStateUpdate: Invalid state " + state.ToString());
+				break;
+		}
+	}
 
-            default:
-                Debug.LogError("OnStateUpdate: Invalid state " + state.ToString());
-                break;
-        }
-    }
-
-    public void TransitionToState(PlayerState toState)
+	public void TransitionToState(PlayerState toState)
     {
         OnStateExit(currentState);
         currentState = toState;
@@ -139,6 +145,10 @@ public class PlayerMovementStateMachine : MonoBehaviour
         {
             TransitionToState(PlayerState.FALLING);
         }
+        else if (player.IsWallSliding())
+        {
+            TransitionToState(PlayerState.WALLSLIDING);
+        }
     }
 
     private void OnExitJump()
@@ -162,10 +172,41 @@ public class PlayerMovementStateMachine : MonoBehaviour
         {
             TransitionToState(PlayerState.GROUNDED);
         }
+        else if (player.IsWallSliding())
+		{
+            TransitionToState(PlayerState.WALLSLIDING);
+		}
     }
 
     private void OnExitFall()
     {
         animator.SetBool("IsFalling", false);
+    }
+
+
+    private void OnEnterWallSlide()
+    {
+        animator.SetBool("IsWallSliding", true);
+    }
+
+    private void OnUpdateWallSlide()
+    {
+        if (Input.GetButtonDown("Jump") && player.CanJump())
+        {
+            TransitionToState(PlayerState.JUMPING);
+        }
+        else if (player.IsGrounded())
+        {
+            TransitionToState(PlayerState.GROUNDED);
+        }
+		else if (!player.IsWallSliding())
+		{
+            TransitionToState(PlayerState.FALLING);
+		}
+    }
+
+    private void OnExitWallSlide()
+    {
+        animator.SetBool("IsWallSliding", false);
     }
 }
