@@ -31,7 +31,7 @@ public class CameraFollow : MonoBehaviour
 				float x = Mathf.Lerp(t.position.x, playerTransform.position.x, speed * Time.deltaTime);
 				t.position = new Vector3(x, t.position.y, t.position.z);
 			}
-
+			else t.position = new Vector3(0f, t.position.y, t.position.z);
 		}
 	}
 }

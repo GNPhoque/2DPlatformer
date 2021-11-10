@@ -51,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
 		}
 		//GET MOVE INPUT
 		direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
+		animator.SetFloat("HorizontalSpeed", Mathf.Abs(direction.x));
 		//FLIP PLAYER SPRITE
 		if (direction.normalized.x != 0)
 		{
