@@ -4,8 +4,15 @@ using UnityEngine;
 
 enum PlayerAnimState
 {
-	Idle,
-	Run,
-	Jump,
-	Fall
+	IDLE,
+	RUN,
+	JUMP,
+	FALL
+}
+
+public enum PlayerState
+{
+	GROUNDED,
+	JUMPING,
+	FALLING,
 }
